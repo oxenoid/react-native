@@ -1,9 +1,10 @@
-import React, { Component, FunctionComponent } from 'react';
-import { SafeAreaView } from 'react-native';
+// @ts-nocheck
+import React, { Component } from 'react';
+import { SafeAreaView, ScrollView, View, Text } from 'react-native';
 import styled from '@emotion/native';
 import Events from '@storybook/core-events';
 import addons from '@storybook/addons';
-import { Header, Name } from '../Shared/text';
+import StoryTreeView from '../StoryTreeView';
 
 const SearchBar = styled.TextInput(
   {
@@ -23,45 +24,6 @@ const SearchBar = styled.TextInput(
   })
 );
 
-const HeaderContainer = styled.View({
-  paddingVertical: 5,
-});
-
-interface SectionProps {
-  title: string;
-  selected: boolean;
-}
-
-const SectionHeader: FunctionComponent<SectionProps> = ({ title, selected }: SectionProps) => (
-  <HeaderContainer key={title}>
-    <Header selected={selected}>{title}</Header>
-  </HeaderContainer>
-);
-
-interface ListItemProps {
-  title: string;
-  kind: string;
-  selected: boolean;
-  onPress: () => void;
-}
-
-const ItemTouchable = styled.TouchableOpacity({
-  paddingHorizontal: 16,
-  paddingVertical: 5,
-});
-
-const ListItem: FunctionComponent<ListItemProps> = ({ kind, title, selected, onPress }) => (
-  <ItemTouchable
-    key={title}
-    onPress={onPress}
-    activeOpacity={0.8}
-    testID={`Storybook.ListItem.${kind}.${title}`}
-    accessibilityLabel={`Storybook.ListItem.${title}`}
-  >
-    <Name selected={selected}>{title}</Name>
-  </ItemTouchable>
-);
-
 interface Props {
   stories: any;
 }
@@ -70,11 +32,6 @@ interface State {
   data: any[];
   originalData: any[];
 }
-
-const List = styled.SectionList({
-  flex: 1,
-  marginBottom: 40,
-});
 
 export default class StoryListView extends Component<Props, State> {
   constructor(props: Props) {
@@ -152,13 +109,18 @@ export default class StoryListView extends Component<Props, State> {
     this.setState({ data: filteredData });
   };
 
-  changeStory(storyId: string) {
+  changeStory(kind: string, story: string) {
     const channel = addons.getChannel();
-    channel.emit(Events.SET_CURRENT_STORY, { storyId });
+    channel.emit(Events.SET_CURRENT_STORY, { kind, story });
   }
 
+  /* changeStory(storyId: string) {
+    const channel = addons.getChannel();
+    channel.emit(Events.SET_CURRENT_STORY, { storyId });
+  } */
+
   render() {
-    const { stories } = this.props;
+    const { stories, selectedKind } = this.props;
     const { storyId } = stories.getSelection();
     const selectedStory = stories.fromId(storyId);
     const { data } = this.state;
@@ -173,23 +135,40 @@ export default class StoryListView extends Component<Props, State> {
           placeholder="Filter"
           returnKeyType="search"
         />
-        <List
-          testID="Storybook.ListView"
-          renderItem={({ item }) => (
-            <ListItem
-              title={item.name}
-              kind={item.kind}
-              selected={selectedStory && item.id === selectedStory.id}
-              onPress={() => this.changeStory(item.id)}
-            />
-          )}
-          renderSectionHeader={({ section: { title } }) => (
-            <SectionHeader title={title} selected={selectedStory && title === selectedStory.kind} />
-          )}
-          keyExtractor={(item, index) => item + index}
-          sections={data}
-          stickySectionHeadersEnabled={false}
-        />
+
+        <ScrollView style={{ flex: 1, marginBottom: 40 }}>
+          <StoryTreeView
+            selectedKind={selectedKind}
+            selectedStory={selectedStory}
+            ref={ref => {
+              this.treeView = ref;
+            }}
+            data={data}
+            onNodePress={({ node, level }) => {
+              if (!node.children) {
+                this.changeStory(node.kind, node.name);
+              }
+            }}
+            renderNode={({ node, level, isExpanded, hasChildrenNodes }) => (
+              <View>
+                <Text
+                  style={{
+                    marginLeft: 25 * level,
+                    fontWeight:
+                      node.kind === selectedKind && node.name === selectedStory ? 'bold' : 'normal',
+                  }}
+                >
+                  {isExpanded !== null && hasChildrenNodes ? (
+                    <Text>{isExpanded ? ' ▼ ' : ' ▶ '}</Text>
+                  ) : (
+                    <Text> - </Text>
+                  )}
+                  {node.name}
+                </Text>
+              </View>
+            )}
+          />
+        </ScrollView>
       </SafeAreaView>
     );
   }

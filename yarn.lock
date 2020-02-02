@@ -18134,6 +18134,13 @@ react-native-color-picker@^0.4.0:
     prop-types "^15.5.10"
     tinycolor2 "^1.4.1"
 
+react-native-final-tree-view@^2.0.0:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/react-native-final-tree-view/-/react-native-final-tree-view-2.0.1.tgz#f09df3aef1b782ba05c4dd3ff8ee74a108f098f7"
+  integrity sha512-8SBdKCrxgCmJYJVLKcf/25r5lze4yLOL1B/M1/pTufemccCXgx7YgwHO23Vnx+FX/IJJa/0lzFrb9fYKIwOKHw==
+  dependencies:
+    lodash.get "^4.4.2"
+
 react-native-gesture-handler@1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-1.2.1.tgz#9c48fb1ab13d29cece24bbb77b1e847eebf27a2b"
