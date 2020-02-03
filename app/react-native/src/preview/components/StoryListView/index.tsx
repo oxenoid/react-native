@@ -60,24 +60,54 @@ export default class StoryListView extends Component<Props, State> {
     this.forceUpdate();
   };
 
+  buildStoriesTree = stories => {
+    const { selectedKind, selectedStory } = this.props;
+
+    const hashmap = {};
+    const result = [];
+    stories.reverse().forEach(story => {
+      let components = story.kind.split('/');
+      components = components.map(component => component.split('/'));
+      components = components.flat(1);
+      components.forEach((component, i) => {
+        const parentComponentId = components.slice(0, i).join('/');
+        const componentId = components.slice(0, i + 1).join('/');
+        if (!hashmap[componentId]) {
+          const newNode = {
+            id: componentId,
+            name: component,
+            collapsed: true,
+            children: [],
+          };
+          hashmap[componentId] = newNode;
+
+          if (parentComponentId) {
+            const parent = hashmap[parentComponentId];
+            parent.children.push(newNode);
+          } else {
+            result.push(newNode);
+          }
+        }
+      });
+      hashmap[story.kind].children = story.stories.map(item => ({
+        name: item,
+        kind: story.kind,
+      }));
+    });
+
+    return result;
+  };
+
   handleStoryAdded = () => {
     const { stories } = this.props;
 
     if (stories) {
-      const data = Object.values(
-        stories
-          .raw()
-          .reduce((acc: { [kind: string]: { title: string; data: any[] } }, story: any) => {
-            acc[story.kind] = {
-              title: story.kind,
-              data: (acc[story.kind] ? acc[story.kind].data : []).concat(story),
-            };
+      const data = this.buildStoriesTree(stories.dumpStoryBook());
 
-            return acc;
-          }, {})
-      );
-
-      this.setState({ data, originalData: data });
+      this.setState({
+        data: data.reverse(),
+        originalData: data,
+      });
     }
   };
 
