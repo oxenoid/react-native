@@ -4,14 +4,14 @@ class StoryTreeView extends TreeView {
   getInitialState = () => ({
     selectedKind: this.props.selectedKind,
     selectedStory: this.props.selectedStory,
-    isFirstRun: false,
+    isFirstRun: true,
   });
 
   componentWillReceiveProps(props) {
     if (
       props.selectedKind != null &&
       props.selectedStory != null &&
-      this.state.isFirstRun === false
+      this.state.isFirstRun === true
     ) {
       const fullPath = `${props.selectedKind}/${props.selectedStory}`.split('/');
       let path = '';
@@ -19,7 +19,7 @@ class StoryTreeView extends TreeView {
         path = path + (path !== '' ? '/' : '') + s;
         this.toggleCollapse(path);
       });
-      this.setState({ isFirstRun: true });
+      this.setState({ isFirstRun: false });
     }
   }
 }

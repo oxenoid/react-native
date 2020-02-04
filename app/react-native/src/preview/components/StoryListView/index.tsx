@@ -139,20 +139,16 @@ export default class StoryListView extends Component<Props, State> {
     this.setState({ data: filteredData });
   };
 
-  changeStory(kind: string, story: string) {
-    const channel = addons.getChannel();
-    channel.emit(Events.SET_CURRENT_STORY, { kind, story });
-  }
-
-  /* changeStory(storyId: string) {
+  changeStory(storyId: string) {
     const channel = addons.getChannel();
     channel.emit(Events.SET_CURRENT_STORY, { storyId });
-  } */
+  }
 
   render() {
-    const { stories, selectedKind } = this.props;
+    const { stories } = this.props;
     const { storyId } = stories.getSelection();
-    const selectedStory = stories.fromId(storyId);
+    const selectedKind = stories.fromId(storyId).kind;
+    const selectedStory = stories.fromId(storyId).name;
     const { data } = this.state;
 
     return (
@@ -176,7 +172,7 @@ export default class StoryListView extends Component<Props, State> {
             data={data}
             onNodePress={({ node, level }) => {
               if (!node.children) {
-                this.changeStory(node.kind, node.name);
+                this.changeStory(stories.getRawStory(node.kind, node.name).id);
               }
             }}
             renderNode={({ node, level, isExpanded, hasChildrenNodes }) => (
