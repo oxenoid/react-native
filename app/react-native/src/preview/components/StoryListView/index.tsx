@@ -61,8 +61,6 @@ export default class StoryListView extends Component<Props, State> {
   };
 
   buildStoriesTree = stories => {
-    const { selectedKind, selectedStory } = this.props;
-
     const hashmap = {};
     const result = [];
     stories.reverse().forEach(story => {
@@ -147,8 +145,8 @@ export default class StoryListView extends Component<Props, State> {
   render() {
     const { stories } = this.props;
     const { storyId } = stories.getSelection();
-    const selectedKind = stories.fromId(storyId).kind;
-    const selectedStory = stories.fromId(storyId).name;
+    const selectedKind = storyId ? stories.fromId(storyId).kind : undefined;
+    const selectedStory = storyId ? stories.fromId(storyId).name : undefined;
     const { data } = this.state;
 
     return (
